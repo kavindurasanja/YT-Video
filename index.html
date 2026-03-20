@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VideoStream - Premium URL Video Downloader</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;600;700&display=swap');
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #f8fafc;
+            color: #1e293b;
+        }
+
+        .hero-gradient {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        }
+
+        /* AdSense Compatibility Styles */
+        .ad-container {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #94a3b8;
+            margin: 25px auto;
+            min-height: 90px;
+            border-radius: 12px;
+            overflow: hidden;
+            max-width: 100%;
+        }
+
+        .loader {
+            border: 3px solid #f3f3f3;
+            border-radius: 50%;
+            border-top: 3px solid #4f46e5;
+            width: 24px;
+            height: 24px;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .download-card {
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        .download-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        #downloadResult {
+            display: none;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-extrabold text-indigo-600 flex items-center tracking-tight">
+                <i class="fas fa-play-circle mr-2 text-3xl"></i> VideoStream
+            </a>
+            <div class="hidden md:flex space-x-8 text-slate-600 font-semibold">
+                <a href="#" class="hover:text-indigo-600 transition">Downloader</a>
+                <a href="#how-it-works" class="hover:text-indigo-600 transition">How it Works</a>
+                <a href="#" class="hover:text-indigo-600 transition">Platforms</a>
+                <a href="#" class="hover:text-indigo-600 transition">FAQ</a>
+            </div>
+            <button class="bg-slate-100 p-2 rounded-full px-4 text-slate-600 font-medium hover:bg-slate-200 transition">
+                <i class="fas fa-globe mr-1"></i> EN
+            </button>
+        </div>
+    </nav>
+
+    <!-- Top AdSense Slot (Header) -->
+    <div class="container mx-auto px-4">
+        <div class="ad-container shadow-sm">
+            <!-- Replace this with your Google AdSense Code -->
+            <ins class="adsbygoogle"
+                style="display:block"
+                data-ad-client="ca-pub-XXXXXXXXXXXXXXXX"
+                data-ad-slot="XXXXXXXXXX"
+                data-ad-format="auto"
+                data-full-width-responsive="true"></ins>
+            <span class="text-xs uppercase tracking-widest font-bold">Advertisement</span>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="container mx-auto px-4 py-8">
+        <!-- Hero Section -->
+        <section class="hero-gradient rounded-[2rem] p-8 md:p-20 text-center text-white shadow-xl mb-12">
+            <h1 class="text-4xl md:text-6xl font-extrabold mb-6 leading-tight">
+                High-Speed Video Downloader
+            </h1>
+            <p class="text-indigo-100 mb-10 text-lg md:text-xl max-w-2xl mx-auto opacity-90">
+                Download your favorite videos from social media platforms in HD quality. Fast, free, and secure.
+            </p>
+            
+            <div class="max-w-4xl mx-auto">
+                <div class="bg-white/10 backdrop-blur-md p-2 rounded-2xl shadow-inner border border-white/20">
+                    <div class="flex flex-col md:flex-row gap-2">
+                        <input type="url" id="videoUrl" placeholder="Paste video link here (e.g. https://...)" 
+                            class="w-full px-6 py-5 rounded-xl text-slate-800 focus:outline-none focus:ring-4 focus:ring-white/30 transition-all text-lg font-medium">
+                        <button onclick="handleDownload()" id="dlBtn" 
+                            class="bg-indigo-500 hover:bg-indigo-400 text-white font-bold px-10 py-5 rounded-xl transition-all shadow-lg flex items-center justify-center min-w-[200px] uppercase tracking-wider">
+                            <span>Get Video</span>
+                        </button>
+                    </div>
+                </div>
+                <p class="mt-4 text-sm text-indigo-200">By using our service you accept our <a href="#" class="underline">Terms of Service</a>.</p>
+            </div>
+        </section>
+
+        <!-- Result Section -->
+        <div id="downloadResult" class="max-w-3xl mx-auto bg-white p-8 rounded-3xl shadow-xl border border-slate-100 mb-12">
+            <div class="flex flex-col md:flex-row items-center gap-6 mb-8 pb-8 border-b border-slate-100">
+                <div class="w-full md:w-48 h-32 bg-slate-200 rounded-2xl overflow-hidden shadow-inner">
+                    <img src="https://images.unsplash.com/photo-1611162617474-5b21e879e113?q=80&w=500&auto=format&fit=crop" alt="Thumbnail" class="w-full h-full object-cover">
+                </div>
+                <div class="text-center md:text-left flex-1">
+                    <div class="inline-block px-3 py-1 bg-green-100 text-green-700 rounded-full text-xs font-bold mb-2 uppercase">Ready to Download</div>
+                    <h3 class="font-bold text-2xl text-slate-800 mb-2 leading-tight" id="videoTitle">Social Media Video Found!</h3>
+                    <p class="text-slate-500">Duration: 02:45 | Format: MP4</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <a href="#" class="download-card flex justify-between items-center p-5 bg-slate-50 hover:bg-indigo-50 rounded-2xl transition-all text-slate-700 hover:text-indigo-700 font-bold border border-slate-100">
+                    <div class="flex items-center">
+                        <i class="fas fa-hd text-indigo-600 mr-3 text-xl"></i>
+                        <span>Video (1080p)</span>
+                    </div>
+                    <i class="fas fa-download opacity-50"></i>
+                </a>
+                <a href="#" class="download-card flex justify-between items-center p-5 bg-slate-50 hover:bg-indigo-50 rounded-2xl transition-all text-slate-700 hover:text-indigo-700 font-bold border border-slate-100">
+                    <div class="flex items-center">
+                        <i class="fas fa-video text-indigo-600 mr-3 text-xl"></i>
+                        <span>Video (720p)</span>
+                    </div>
+                    <i class="fas fa-download opacity-50"></i>
+                </a>
+                <a href="#" class="download-card flex justify-between items-center p-5 bg-slate-50 hover:bg-green-50 rounded-2xl transition-all text-slate-700 hover:text-green-700 font-bold border border-slate-100">
+                    <div class="flex items-center">
+                        <i class="fas fa-music text-green-600 mr-3 text-xl"></i>
+                        <span>Audio (MP3)</span>
+                    </div>
+                    <i class="fas fa-download opacity-50"></i>
+                </a>
+                <a href="#" class="download-card flex justify-between items-center p-5 bg-slate-50 hover:bg-slate-200 rounded-2xl transition-all text-slate-700 font-bold border border-slate-100">
+                    <div class="flex items-center">
+                        <i class="fas fa-file-archive text-slate-600 mr-3 text-xl"></i>
+                        <span>Other Formats</span>
+                    </div>
+                    <i class="fas fa-ellipsis-h opacity-50"></i>
+                </a>
+            </div>
+        </div>
+
+        <!-- In-Content Ad Slot -->
+        <div class="ad-container shadow-sm border-dashed">
+            <span class="text-xs uppercase tracking-widest font-bold">Sponsored Content</span>
+        </div>
+
+        <!-- Supported Platforms -->
+        <section class="py-12">
+            <h2 class="text-center text-2xl font-bold text-slate-800 mb-10">Supported Media Platforms</h2>
+            <div class="flex flex-wrap justify-center gap-8 opacity-60 grayscale hover:grayscale-0 transition-all">
+                <i class="fab fa-youtube text-4xl"></i>
+                <i class="fab fa-facebook text-4xl"></i>
+                <i class="fab fa-instagram text-4xl"></i>
+                <i class="fab fa-tiktok text-4xl"></i>
+                <i class="fab fa-twitter text-4xl"></i>
+                <i class="fab fa-vimeo text-4xl"></i>
+            </div>
+        </section>
+
+        <!-- Features -->
+        <section class="grid md:grid-cols-3 gap-10 mt-16 px-4" id="how-it-works">
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 text-center">
+                <div class="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl shadow-inner">
+                    <i class="fas fa-link"></i>
+                </div>
+                <h4 class="font-bold text-xl mb-3">1. Copy URL</h4>
+                <p class="text-slate-600 leading-relaxed">Copy the link of the video you want to download from your browser or social media app.</p>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 text-center">
+                <div class="w-14 h-14 bg-purple-100 text-purple-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl shadow-inner">
+                    <i class="fas fa-paste"></i>
+                </div>
+                <h4 class="font-bold text-xl mb-3">2. Paste Link</h4>
+                <p class="text-slate-600 leading-relaxed">Paste the link into the input box above and click the "Get Video" button to start processing.</p>
+            </div>
+            <div class="bg-white p-8 rounded-3xl shadow-sm border border-slate-100 text-center">
+                <div class="w-14 h-14 bg-green-100 text-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 text-2xl shadow-inner">
+                    <i class="fas fa-file-download"></i>
+                </div>
+                <h4 class="font-bold text-xl mb-3">3. Download HD</h4>
+                <p class="text-slate-600 leading-relaxed">Choose your preferred resolution (720p, 1080p, MP3) and save the file to your device instantly.</p>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-900 text-slate-400 py-16 mt-20 border-t-4 border-indigo-600">
+        <div class="container mx-auto px-4">
+            <div class="grid md:grid-cols-4 gap-12 mb-12">
+                <div class="col-span-2">
+                    <h2 class="text-2xl font-bold text-white mb-4">VideoStream Downloader</h2>
+                    <p class="max-w-md leading-relaxed">
+                        The ultimate tool for downloading web media. Our platform provides a safe and fast way to archive your favorite content for offline viewing. 100% free with no registration required.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4 uppercase text-sm tracking-widest">Legal</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-white transition">Terms of Use</a></li>
+                        <li><a href="#" class="hover:text-white transition">Privacy Policy</a></li>
+                        <li><a href="#" class="hover:text-white transition">Copyright Policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-white font-bold mb-4 uppercase text-sm tracking-widest">Connect</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="hover:text-white transition">Contact Us</a></li>
+                        <li><a href="#" class="hover:text-white transition">About Service</a></li>
+                        <li><a href="#" class="hover:text-white transition">Blog</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-slate-800 pt-8 flex flex-col md:flex-row justify-between items-center text-sm">
+                <p>&copy; 2024 VideoStream Media Solutions. Handcrafted for the web.</p>
+                <div class="flex space-x-6 mt-4 md:mt-0">
+                    <a href="#" class="hover:text-white"><i class="fab fa-facebook-f"></i></a>
+                    <a href="#" class="hover:text-white"><i class="fab fa-twitter"></i></a>
+                    <a href="#" class="hover:text-white"><i class="fab fa-github"></i></a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Custom Toast & Logic -->
+    <script>
+        function handleDownload() {
+            const urlInput = document.getElementById('videoUrl');
+            const btn = document.getElementById('dlBtn');
+            const result = document.getElementById('downloadResult');
+
+            if (!urlInput.value || !urlInput.value.includes('http')) {
+                showToast("Please enter a valid URL (including http:// or https://)");
+                urlInput.classList.add('ring-4', 'ring-red-400');
+                setTimeout(() => urlInput.classList.remove('ring-4', 'ring-red-400'), 2000);
+                return;
+            }
+
+            // Show Loading
+            btn.disabled = true;
+            const originalContent = btn.innerHTML;
+            btn.innerHTML = '<div class="loader mr-2"></div> Fetching...';
+
+            // Simulate server-side processing delay
+            setTimeout(() => {
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+                
+                // Show Result Card
+                result.style.display = 'block';
+                
+                // Scroll to the result area
+                result.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                
+                showToast("Success! Video found and processed.", "success");
+            }, 2500);
+        }
+
+        function showToast(msg, type = "error") {
+            const toast = document.createElement('div');
+            const bgColor = type === "success" ? "bg-indigo-600" : "bg-slate-800";
+            toast.className = `fixed bottom-8 left-1/2 transform -translate-x-1/2 ${bgColor} text-white px-8 py-4 rounded-2xl shadow-2xl z-[100] font-bold transition-all animate-bounce`;
+            toast.innerHTML = `<i class="fas ${type === "success" ? 'fa-check-circle' : 'fa-exclamation-circle'} mr-2"></i> ${msg}`;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 500);
+            }, 3000);
+        }
+    </script>
+
+</body>
+</html>
